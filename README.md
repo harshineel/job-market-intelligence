@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Global Job Market Intelligence Dashboard
 
 An end-to-end data science project that scrapes real job postings from Indeed and LinkedIn, trains ML models, and visualizes insights through an interactive Streamlit dashboard.
