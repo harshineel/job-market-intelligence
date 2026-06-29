@@ -6,18 +6,14 @@ import numpy as np
 import scipy.sparse as sp
 import os, sys
 
-# Path fix for Streamlit Cloud
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
-from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
 
-from dashboard.data_loader import load_jobs
-
-@st.cache_resource
-def load_model():
-    model    = joblib.load(os.path.join(ROOT, "models", "salary_model.pkl"))
-    encoders = joblib.load(os.path.join(ROOT, "models", "salary_encoders.pkl"))
-    return model, encoders
+from dashboard.utils import apply_theme, format_salary, get_display_salary
+try:
+    from dashboard.data_loader import load_jobs
+except:
+    from data_loader import load_jobs
 
 def load_data():
     return load_jobs()
@@ -28,25 +24,10 @@ def apply_filter(df):
         df = df[df["country"] == country]
     return df
 
-def format_salary(value, symbol):
-    if symbol == "₹":
-        if value >= 10000000:
-            return f"₹{value/10000000:.2f} Cr"
-        elif value >= 100000:
-            return f"₹{value/100000:.2f} L"
-        else:
-            return f"₹{value:,.0f}"
-    else:
-        if value >= 1000000:
-            return f"${value/1000000:.2f}M"
-        else:
-            return f"${value:,.0f}"
-
 @st.cache_resource
 def load_model():
-    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    model    = joblib.load(os.path.join(base, "models", "salary_model.pkl"))
-    encoders = joblib.load(os.path.join(base, "models", "salary_encoders.pkl"))
+    model    = joblib.load(os.path.join(ROOT, "models", "salary_model.pkl"))
+    encoders = joblib.load(os.path.join(ROOT, "models", "salary_encoders.pkl"))
     return model, encoders
 
 st.title("Salary Intelligence")
@@ -57,8 +38,6 @@ st.markdown("---")
 df = load_data()
 df = apply_filter(df)
 model, encoders = load_model()
-
-country = st.session_state.get("country_filter", "All")
 symbol, df = get_display_salary(df)
 
 top_role    = df.groupby("canonical_title")["display_salary"].mean().idxmax()
@@ -123,7 +102,7 @@ with col1:
         },
         labels={
             "canonical_title":  "Role",
-            "display_salary":       "Avg Salary",
+            "display_salary":   "Avg Salary",
             "experience_level": "Level"
         }
     )
@@ -136,8 +115,8 @@ with col1:
     )
     if symbol == "₹":
         fig2.update_yaxes(
-            tickvals=[500000, 1000000, 1500000, 2000000, 2500000, 3000000],
-            ticktext=["₹5L", "₹10L", "₹15L", "₹20L", "₹25L", "₹30L"]
+            tickvals=[500000,1000000,1500000,2000000,2500000,3000000],
+            ticktext=["₹5L","₹10L","₹15L","₹20L","₹25L","₹30L"]
         )
     else:
         fig2.update_yaxes(tickprefix="$", tickformat=",")
@@ -172,8 +151,8 @@ with col2:
     )
     if symbol == "₹":
         fig3.update_yaxes(
-            tickvals=[500000, 1000000, 1500000, 2000000, 2500000],
-            ticktext=["₹5L", "₹10L", "₹15L", "₹20L", "₹25L"]
+            tickvals=[500000,1000000,1500000,2000000,2500000],
+            ticktext=["₹5L","₹10L","₹15L","₹20L","₹25L"]
         )
     else:
         fig3.update_yaxes(tickprefix="$", tickformat=",")
@@ -223,6 +202,14 @@ if st.button("Predict my salary"):
         pred = model.predict(X)[0]
         low  = pred * 0.9
         high = pred * 1.1
+
+        # Note: model trained on USD — convert if needed
+        country = st.session_state.get("country_filter", "All")
+        show_inr = st.session_state.get("show_inr", False)
+        if country == "India" or show_inr:
+            pred = pred * 83.5
+            low  = low  * 83.5
+            high = high * 83.5
 
         st.success(f"Predicted salary: **{format_salary(pred, symbol)}**")
         c1, c2, c3 = st.columns(3)
