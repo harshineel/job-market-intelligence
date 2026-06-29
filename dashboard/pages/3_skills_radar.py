@@ -19,8 +19,8 @@ def apply_filter(df):
     return df
 @st.cache_resource
 def load_skill_gap():
-    return joblib.load("models/skill_gap.pkl")
-
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return joblib.load(os.path.join(base, "models", "skill_gap.pkl"))
 st.title("🛠 Skills Radar")
 st.markdown("Discover which skills dominate the market and what you need for any role.")
 st.markdown("---")

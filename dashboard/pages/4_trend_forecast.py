@@ -5,9 +5,10 @@ import joblib
 
 @st.cache_resource
 def load_forecasts():
-    forecasts = joblib.load("models/forecasts.pkl")
-    summary   = joblib.load("models/forecast_summary.pkl")
-    history   = joblib.load("models/timeseries.pkl")
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    forecasts = joblib.load(os.path.join(base, "models", "forecasts.pkl"))
+    summary   = joblib.load(os.path.join(base, "models", "forecast_summary.pkl"))
+    history   = joblib.load(os.path.join(base, "models", "timeseries.pkl"))
     return forecasts, summary, history
 
 st.title("📈 Trend Forecast")

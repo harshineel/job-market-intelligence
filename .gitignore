@@ -6,5 +6,4 @@ __pycache__/
 scrapers/linkedin_cookies.json
 data/raw/
 data/processed/
-data/*.pkl
 .streamlit/secrets.toml

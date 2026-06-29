@@ -33,8 +33,9 @@ def format_salary(value, symbol):
 
 @st.cache_resource
 def load_model():
-    model    = joblib.load("models/salary_model.pkl")
-    encoders = joblib.load("models/salary_encoders.pkl")
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    model    = joblib.load(os.path.join(base, "models", "salary_model.pkl"))
+    encoders = joblib.load(os.path.join(base, "models", "salary_encoders.pkl"))
     return model, encoders
 
 st.title("Salary Intelligence")
