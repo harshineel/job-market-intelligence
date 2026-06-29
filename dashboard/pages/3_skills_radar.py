@@ -3,24 +3,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import joblib
-from sqlalchemy import create_engine
-from sqlalchemy.engine import URL
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from dashboard.data_loader import load_jobs, load_skill_demand
 
-connection_url = URL.create(
-    drivername="postgresql+psycopg2",
-    username="postgres",
-    password="123456789",
-    host="localhost",
-    port=5432,
-    database="job_market_db"
-)
-
-@st.cache_data
 def load_data():
-    engine = create_engine(connection_url)
-    df = pd.read_sql("SELECT * FROM jobs_master", engine)
-    sd = pd.read_sql("SELECT * FROM skill_demand", engine)
-    return df, sd
+    return load_jobs(), load_skill_demand()
 def apply_filter(df):
     country = st.session_state.get("country_filter", "All")
     if country != "All":
