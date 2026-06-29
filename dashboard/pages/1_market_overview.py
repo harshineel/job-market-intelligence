@@ -3,8 +3,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import sys, os
+sys.path.insert(0, "/mount/src/job-market-intelligence")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dashboard.data_loader import load_jobs
+
+try:
+    from dashboard.data_loader import load_jobs
+except:
+    from data_loader import load_jobs
 
 def load_data():
     return load_jobs()
