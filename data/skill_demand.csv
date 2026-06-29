@@ -1,0 +1,68 @@
+skill,demand_pct
+python,48.89
+sql,34.5
+excel,27.62
+communication,23.57
+project management,21.74
+docker,21.0
+kubernetes,20.19
+aws,14.45
+pytorch,10.13
+problem solving,10.13
+tensorflow,10.13
+collaboration,9.86
+azure,8.85
+gcp,8.85
+statistics,7.16
+tableau,6.82
+pandas,5.87
+risk analysis,5.67
+machine learning,5.47
+power bi,5.0
+java,4.86
+agile,4.86
+bash,4.86
+linux,4.86
+javascript,4.86
+networking,4.79
+scrum,4.66
+financial modeling,4.46
+valuation,4.46
+leadership,4.46
+llm,3.58
+transformers,3.11
+git,3.04
+spark,2.84
+a/b testing,2.3
+ci/cd,1.96
+kafka,1.55
+airflow,1.55
+deep learning,1.28
+monitoring,1.22
+elasticsearch,1.15
+r,1.08
+terraform,1.08
+kubeflow,1.01
+scala,1.01
+accounting,0.95
+ansible,0.95
+nlp,0.95
+bloomberg,0.95
+postgresql,0.88
+jenkins,0.81
+mlflow,0.74
+redis,0.68
+typescript,0.61
+portfolio management,0.61
+computer vision,0.54
+looker,0.47
+hypothesis testing,0.47
+generative ai,0.41
+go,0.34
+scikit-learn,0.27
+bigquery,0.2
+dbt,0.14
+snowflake,0.14
+databricks,0.14
+redshift,0.14
+bayesian,0.07
