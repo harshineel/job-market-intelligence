@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Global Job Market Intelligence Dashboard
 
 An end-to-end data science project that scrapes real job postings from Indeed and LinkedIn, trains ML models, and visualizes insights through an interactive Streamlit dashboard.
@@ -111,3 +112,6 @@ streamlit run dashboard/app.py
 
 **Harshinee** — Data Science, SRM University  
 Second-year undergraduate | Intern at Arinox AI, Bangalore
+=======
+# job-market-intelligence
+>>>>>>> bd923588cd6f8dafa9418d05987384613a074b46
