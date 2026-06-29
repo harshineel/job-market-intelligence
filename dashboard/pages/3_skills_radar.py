@@ -5,8 +5,8 @@ import plotly.graph_objects as go
 import joblib
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dashboard.data_loader import load_jobs, load_skill_demand
-
 def load_data():
     return load_jobs(), load_skill_demand()
 def apply_filter(df):
