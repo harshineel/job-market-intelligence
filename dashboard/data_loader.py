@@ -3,15 +3,9 @@ import os
 import streamlit as st
 
 def get_data_dir():
-    possible_paths = [
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"),
-        os.path.join("/mount/src/job-market-intelligence", "data"),
-        os.path.join(os.getcwd(), "data"),
-    ]
-    for path in possible_paths:
-        if os.path.exists(path):
-            return os.path.abspath(path)
-    return os.path.join(os.getcwd(), "data")
+    # __file__ is dashboard/data_loader.py
+    # data/ is at the project root, one level up from dashboard/
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
 
 DATA_DIR = get_data_dir()
 

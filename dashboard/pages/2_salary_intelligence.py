@@ -4,9 +4,19 @@ import plotly.express as px
 import joblib
 import numpy as np
 import scipy.sparse as sp
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import os, sys
+
+# Path fix for Streamlit Cloud
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, ROOT)
+
 from dashboard.data_loader import load_jobs
+
+@st.cache_resource
+def load_model():
+    model    = joblib.load(os.path.join(ROOT, "models", "salary_model.pkl"))
+    encoders = joblib.load(os.path.join(ROOT, "models", "salary_encoders.pkl"))
+    return model, encoders
 
 def load_data():
     return load_jobs()
@@ -16,7 +26,6 @@ def apply_filter(df):
     if country != "All":
         df = df[df["country"] == country]
     return df
-
 def format_salary(value, symbol):
     if symbol == "₹":
         if value >= 10000000:
