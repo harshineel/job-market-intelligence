@@ -2,7 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import sys, os
+import os, sys
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, ROOT)
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
+
 sys.path.insert(0, "/mount/src/job-market-intelligence")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -33,7 +37,7 @@ df = apply_filter(df)
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total jobs",        len(df))
 col2.metric("Unique companies",  df["company"].nunique())
-col3.metric("Avg salary",        f"${df['salary_mid'].mean():,.0f}")
+col3.metric("Avg salary",        f"${df['display_salary'].mean():,.0f}")
 col4.metric("Domains tracked",   df["domain"].nunique())
 
 st.markdown("---")
@@ -102,16 +106,16 @@ with col2:
         height=280
     )
     st.plotly_chart(fig3, use_container_width=True)
-
+apply_theme()
 st.markdown("---")
 st.subheader("Salary distribution by role")
 
-box_df = df[df["canonical_title"] != "Other"].sort_values("salary_mid", ascending=False)
+box_df = df[df["canonical_title"] != "Other"].sort_values("display_salary", ascending=False)
 fig4 = px.box(
-    box_df, x="canonical_title", y="salary_mid",
+    box_df, x="canonical_title", y="display_salary",
     color="canonical_title",
     color_discrete_sequence=px.colors.qualitative.Set2,
-    labels={"canonical_title": "Role", "salary_mid": "Salary (USD)"}
+    labels={"canonical_title": "Role", "display_salary": "Salary (USD)"}
 )
 fig4.update_layout(
     showlegend=False,
@@ -129,11 +133,11 @@ st.subheader("Data explorer")
 role_filter = st.selectbox("Filter by role", ["All"] + sorted(df["canonical_title"].unique().tolist()))
 filtered = df if role_filter == "All" else df[df["canonical_title"] == role_filter]
 st.dataframe(
-    filtered[["canonical_title","company","location","domain","experience_level","work_mode","salary_mid"]]
+    filtered[["canonical_title","company","location","domain","experience_level","work_mode","display_salary"]]
     .rename(columns={
         "canonical_title":"Role","company":"Company","location":"Location",
         "domain":"Domain","experience_level":"Level",
-        "work_mode":"Work Mode","salary_mid":"Salary (USD)"
+        "work_mode":"Work Mode","display_salary":"Salary (USD)"
     }).head(50),
     use_container_width=True
 )

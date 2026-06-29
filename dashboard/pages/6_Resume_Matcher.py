@@ -9,6 +9,7 @@ import scipy.sparse as sp
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dashboard.data_loader import load_jobs
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
 
 def load_data():
     return load_jobs()
@@ -23,8 +24,8 @@ def load_model():
 @st.cache_resource
 def load_skill_gap():
     base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    joblib.load(os.path.join(base, "models", "skill_gap.pkl"))
-    
+    return joblib.load(os.path.join(base, "models", "skill_gap.pkl"))
+
 def format_salary(value, symbol):
     if symbol == "₹":
         if value >= 10000000:
@@ -58,6 +59,7 @@ ALL_SKILLS = [
 ]
 
 st.title("Resume Skill Matcher")
+apply_theme()
 st.markdown("Enter your skills and discover which roles you're best suited for — with salary predictions and skill gap analysis.")
 st.markdown("---")
 
@@ -66,8 +68,7 @@ model, encoders = load_model()
 skill_gap = load_skill_gap()
 
 country = st.session_state.get("country_filter", "All")
-symbol  = "₹" if country == "India" else "$"
-
+symbol, df = get_display_salary(df)
 st.subheader("Your skills")
 st.markdown("Select all the skills you currently have:")
 

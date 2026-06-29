@@ -9,6 +9,7 @@ import os, sys
 # Path fix for Streamlit Cloud
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
 
 from dashboard.data_loader import load_jobs
 
@@ -39,6 +40,7 @@ def format_salary(value, symbol):
         return f"${value:,.0f}"
 
 st.title("Company Intelligence")
+apply_theme()
 st.markdown("Discover which companies are hiring the most, paying the best, and offering the most flexibility.")
 st.markdown("---")
 
@@ -46,12 +48,12 @@ df = load_data()
 df = apply_filter(df)
 
 country = st.session_state.get("country_filter", "All")
-symbol  = "₹" if country == "India" else "$"
+symbol, df = get_display_salary(df)
 
 # Company stats
 company_stats = df.groupby("company").agg(
     openings    =("canonical_title", "count"),
-    avg_salary  =("salary_mid", "mean"),
+    avg_salary  =("display_salary", "mean"),
     remote_pct  =("work_mode", lambda x: (x == "remote").mean() * 100),
     hybrid_pct  =("work_mode", lambda x: (x == "hybrid").mean() * 100),
     senior_pct  =("experience_level", lambda x: (x == "Senior").mean() * 100),

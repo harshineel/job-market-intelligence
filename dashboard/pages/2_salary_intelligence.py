@@ -9,6 +9,7 @@ import os, sys
 # Path fix for Streamlit Cloud
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
 
 from dashboard.data_loader import load_jobs
 
@@ -26,6 +27,7 @@ def apply_filter(df):
     if country != "All":
         df = df[df["country"] == country]
     return df
+
 def format_salary(value, symbol):
     if symbol == "₹":
         if value >= 10000000:
@@ -48,6 +50,7 @@ def load_model():
     return model, encoders
 
 st.title("Salary Intelligence")
+apply_theme()
 st.markdown("Benchmark salaries by role, experience, and location — and predict your market value.")
 st.markdown("---")
 
@@ -56,13 +59,13 @@ df = apply_filter(df)
 model, encoders = load_model()
 
 country = st.session_state.get("country_filter", "All")
-symbol  = "₹" if country == "India" else "$"
+symbol, df = get_display_salary(df)
 
-top_role    = df.groupby("canonical_title")["salary_mid"].mean().idxmax()
-top_sal     = df.groupby("canonical_title")["salary_mid"].mean().max()
-bottom_role = df.groupby("canonical_title")["salary_mid"].mean().idxmin()
-bottom_sal  = df.groupby("canonical_title")["salary_mid"].mean().min()
-avg_all     = df["salary_mid"].mean()
+top_role    = df.groupby("canonical_title")["display_salary"].mean().idxmax()
+top_sal     = df.groupby("canonical_title")["display_salary"].mean().max()
+bottom_role = df.groupby("canonical_title")["display_salary"].mean().idxmin()
+bottom_sal  = df.groupby("canonical_title")["display_salary"].mean().min()
+avg_all     = df["display_salary"].mean()
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Highest avg salary", top_role,    format_salary(top_sal, symbol))
@@ -74,7 +77,7 @@ st.subheader("Average salary by role")
 
 avg_sal = (
     df[df["canonical_title"] != "Other"]
-    .groupby("canonical_title")["salary_mid"]
+    .groupby("canonical_title")["display_salary"]
     .mean().reset_index()
 )
 avg_sal.columns = ["Role", "Avg Salary"]
@@ -106,11 +109,11 @@ with col1:
     st.subheader("Salary by experience level")
     exp_sal = (
         df[df["canonical_title"] != "Other"]
-        .groupby(["canonical_title", "experience_level"])["salary_mid"]
+        .groupby(["canonical_title", "experience_level"])["display_salary"]
         .mean().reset_index()
     )
     fig2 = px.bar(
-        exp_sal, x="canonical_title", y="salary_mid",
+        exp_sal, x="canonical_title", y="display_salary",
         color="experience_level",
         barmode="group",
         color_discrete_map={
@@ -120,7 +123,7 @@ with col1:
         },
         labels={
             "canonical_title":  "Role",
-            "salary_mid":       "Avg Salary",
+            "display_salary":       "Avg Salary",
             "experience_level": "Level"
         }
     )
@@ -144,12 +147,12 @@ with col2:
     st.subheader("Salary by work mode")
     mode_sal = (
         df[df["canonical_title"] != "Other"]
-        .groupby("work_mode")["salary_mid"]
+        .groupby("work_mode")["display_salary"]
         .mean().reset_index()
     )
-    mode_sal["Label"] = mode_sal["salary_mid"].apply(lambda x: format_salary(x, symbol))
+    mode_sal["Label"] = mode_sal["display_salary"].apply(lambda x: format_salary(x, symbol))
     fig3 = px.bar(
-        mode_sal, x="work_mode", y="salary_mid",
+        mode_sal, x="work_mode", y="display_salary",
         color="work_mode",
         text="Label",
         color_discrete_map={
@@ -157,7 +160,7 @@ with col2:
             "hybrid": "#378ADD",
             "onsite": "#534AB7"
         },
-        labels={"work_mode": "Work Mode", "salary_mid": "Avg Salary"}
+        labels={"work_mode": "Work Mode", "display_salary": "Avg Salary"}
     )
     fig3.update_traces(textposition="outside", marker_line_width=0)
     fig3.update_layout(

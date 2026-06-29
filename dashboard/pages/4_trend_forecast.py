@@ -7,6 +7,7 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
 
 @st.cache_resource
 def load_forecasts():
@@ -16,6 +17,7 @@ def load_forecasts():
     return forecasts, summary, history
 
 st.title("Trend Forecast")
+apply_theme()
 st.markdown("60-day demand forecast for each role using Facebook Prophet.")
 st.markdown("---")
 

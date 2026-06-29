@@ -1,27 +1,39 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import joblib
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-try:
-    from dashboard.data_loader import load_jobs, load_skill_demand
-except:
-    from data_loader import load_jobs, load_skill_demand
+import numpy as np
+import scipy.sparse as sp
+import os, sys
+
+# Path fix for Streamlit Cloud
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, ROOT)
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
+
+from dashboard.data_loader import load_jobs
+
+@st.cache_resource
+def load_model():
+    model    = joblib.load(os.path.join(ROOT, "models", "salary_model.pkl"))
+    encoders = joblib.load(os.path.join(ROOT, "models", "salary_encoders.pkl"))
+    return model, encoders
+
 def load_data():
-    return load_jobs(), load_skill_demand()
+    return load_jobs()
+
 def apply_filter(df):
     country = st.session_state.get("country_filter", "All")
     if country != "All":
         df = df[df["country"] == country]
     return df
+
 @st.cache_resource
 def load_skill_gap():
     base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     return joblib.load(os.path.join(base, "models", "skill_gap.pkl"))
 st.title("🛠 Skills Radar")
+apply_theme()
 st.markdown("Discover which skills dominate the market and what you need for any role.")
 st.markdown("---")
 

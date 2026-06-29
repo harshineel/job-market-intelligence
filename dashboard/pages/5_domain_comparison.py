@@ -10,7 +10,7 @@ import os, sys
 # Path fix for Streamlit Cloud
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
-
+from dashboard.utils import apply_theme, apply_filter, format_salary, get_display_salary
 from dashboard.data_loader import load_jobs
 
 @st.cache_resource
@@ -28,6 +28,7 @@ def apply_filter(df):
         df = df[df["country"] == country]
     return df
 st.title("🏢 Domain Comparison")
+apply_theme()
 st.markdown("Compare Technology, Finance, and Security sectors across key metrics.")
 st.markdown("---")
 

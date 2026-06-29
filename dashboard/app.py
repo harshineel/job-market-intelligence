@@ -1,4 +1,8 @@
 import streamlit as st
+import os, sys
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, ROOT)
 
 st.set_page_config(
     page_title="Global Job Market Intelligence",
@@ -23,9 +27,11 @@ div[data-testid="metric-container"] { border-radius: 12px; padding: 1rem; }
 </style>
 """, unsafe_allow_html=True)
 
+# Dark/light toggle in top right
 col_title, col_toggle = st.columns([8, 1])
 with col_toggle:
-    dark_mode = st.toggle("Dark", value=True)
+    dark_mode = st.toggle("Dark", value=st.session_state.get("dark_mode", True))
+    st.session_state["dark_mode"] = dark_mode
 
 if dark_mode:
     st.markdown("""<style>
@@ -48,48 +54,67 @@ else:
     div[data-testid="metric-container"] { background-color: #FFFFFF !important; border: 1px solid #E8E9EB; }
     </style>""", unsafe_allow_html=True)
 
+# Sidebar
 st.sidebar.markdown("## Job Market Intel")
 st.sidebar.markdown("---")
-st.sidebar.markdown("**Data source:** Indeed")
+st.sidebar.markdown("**Data sources:** Indeed · LinkedIn")
 st.sidebar.markdown("**Records:** 1,481 jobs")
 st.sidebar.markdown("**Countries:** USA · India")
-st.sidebar.markdown("**Sources:** Indeed · LinkedIn")
+st.sidebar.markdown("**Roles tracked:** 12")
+st.sidebar.markdown("**Skills indexed:** 67")
+st.sidebar.markdown("**Last updated:** June 2026")
 st.sidebar.markdown("---")
+
+# Country filter
 country_filter = st.sidebar.radio(
     "Country filter",
     ["All", "United States", "India"],
     horizontal=False
 )
 st.session_state["country_filter"] = country_filter
-st.sidebar.markdown("**Roles tracked:** 12")
-st.sidebar.markdown("**Skills indexed:** 67")
-st.sidebar.markdown("**Last updated:** June 2026")
+
+# Currency toggle
+st.sidebar.markdown("---")
+st.sidebar.markdown("**Currency**")
+if country_filter == "India":
+    show_usd = st.sidebar.toggle("Convert to USD ($)", value=False)
+    st.session_state["show_inr"] = not show_usd
+    st.session_state["show_usd"] = show_usd
+elif country_filter == "United States":
+    show_inr = st.sidebar.toggle("Convert to INR (₹)", value=False)
+    st.session_state["show_inr"] = show_inr
+    st.session_state["show_usd"] = not show_inr
+else:
+    show_inr = st.sidebar.toggle("Show all in INR (₹)", value=False)
+    st.session_state["show_inr"] = show_inr
+    st.session_state["show_usd"] = not show_inr
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Models trained:**")
 st.sidebar.markdown("- Salary predictor (GBM)")
 st.sidebar.markdown("- Demand forecast (Prophet)")
 st.sidebar.markdown("- Skill gap classifier")
 
+# Main content
 with col_title:
     st.markdown("<p style='font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#185FA5;font-weight:500;margin-bottom:4px;'>Data Science Project · SRM University</p>", unsafe_allow_html=True)
     st.title("Global Job Market Intelligence")
     st.markdown("End-to-end intelligence across 1,481 live-scraped job postings from Indeed and LinkedIn — salary benchmarks, skill demand, hiring trends, and ML-powered forecasts across USA and India.")
+
 st.markdown("---")
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Jobs scraped",    "1,481",   "Indeed + LinkedIn")
+col1.metric("Jobs scraped",    "1,481", "Indeed + LinkedIn")
 col2.metric("Avg salary",      "$134K", "AI roles leading")
 col3.metric("Skills indexed",  "67",    "across all roles")
 col4.metric("ML models built", "3",     "GBM · Prophet · KMeans")
 
 st.markdown("---")
-st.markdown("### Explore the dashboard")
 
 c1, c2 = st.columns(2)
 with c1:
     st.info("**Market Overview**\n\nJob demand by role, work mode distribution, salary box plots, and top hiring companies.")
     st.success("**Skills Radar**\n\nTop skills by market demand, role vs skill heatmap, and must-have vs emerging skill gap analysis.")
-
 with c2:
     st.info("**Salary Intelligence**\n\nBenchmark salaries by role and experience. Predict your market value using a trained GBM model.")
     st.warning("**Trend Forecast**\n\n60-day demand forecast per role with confidence intervals using Facebook Prophet.")
@@ -106,4 +131,4 @@ p4.markdown("**ML Models**\n\nScikit-learn")
 p5.markdown("**Dashboard**\n\nStreamlit + Plotly")
 
 st.markdown("---")
-st.caption("Live data · Indeed · June 2026 · Built by Harshinee · SRM University · Data Science")
+st.caption("Live data · June 2026 · Built by Harshinee · SRM University · Data Science")
