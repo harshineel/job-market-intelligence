@@ -1,0 +1,9 @@
+jobmarket_env/
+__pycache__/
+*.pyc
+*.pkl
+.env
+scrapers/linkedin_cookies.json
+data/raw/
+data/processed/
+.streamlit/secrets.toml
