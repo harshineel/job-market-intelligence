@@ -3,7 +3,7 @@
 
 An end-to-end data science project that scrapes real job postings from Indeed and LinkedIn, trains ML models, and visualizes insights through an interactive Streamlit dashboard.
 
-**Live demo:** [yourapp.streamlit.app](https://yourapp.streamlit.app)
+**Live demo:** [JobMarketIntelligence.streamlit.app](https://job-market-intelligence-kbf3veappj5kug5bidrdgfb.streamlit.app/)
 
 ---
 
