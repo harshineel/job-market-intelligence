@@ -1,5 +1,7 @@
 import streamlit as st
 
+USD_TO_INR = 83.5
+
 def apply_theme():
     dark_mode = st.session_state.get("dark_mode", True)
     if dark_mode:
@@ -23,63 +25,6 @@ def apply_theme():
         div[data-testid="metric-container"] { background-color: #FFFFFF !important; border: 1px solid #E8E9EB; border-radius: 12px; padding: 1rem; }
         </style>""", unsafe_allow_html=True)
 
-def apply_font():
-    st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-    html, body, [class*="css"], [data-testid="stMarkdownContainer"],
-    [data-testid="stMetricLabel"], [data-testid="stMetricValue"], button {
-        font-family: 'Inter', sans-serif !important;
-    }
-    h1, h2, h3, h4 { font-family: 'Inter', sans-serif !important; font-weight: 600 !important; letter-spacing: -0.5px; }
-    [data-testid="stMetricValue"] { font-size: 2rem !important; font-weight: 600 !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.72rem !important; letter-spacing: 0.08em; text-transform: uppercase; }
-    .block-container { padding-top: 2rem; padding-bottom: 2rem; }
-    </style>
-    """, unsafe_allow_html=True)
-
-def get_currency_settings(df):
-    """
-    Returns symbol and conversion info based on country filter and currency toggle.
-    Also converts salary columns in df to display currency.
-    """
-    country = st.session_state.get("country_filter", "All")
-    show_inr = st.session_state.get("show_inr", False)
-
-    USD_TO_INR = 83.5
-
-    df = df.copy()
-
-    if country == "India":
-        # India jobs — salaries already in INR
-        symbol = "₹"
-        df["display_salary"] = df["salary_mid"]
-    elif country == "United States":
-        if show_inr:
-            # Convert USD to INR
-            symbol = "₹"
-            df["display_salary"] = df["salary_mid"] * USD_TO_INR
-        else:
-            symbol = "$"
-            df["display_salary"] = df["salary_mid"]
-    else:
-        # All countries mixed
-        if show_inr:
-            symbol = "₹"
-            df["display_salary"] = df.apply(
-                lambda r: r["salary_mid"] if r.get("currency") == "INR"
-                else r["salary_mid"] * USD_TO_INR, axis=1
-            )
-        else:
-            # Show USD for US jobs, convert INR to USD for India jobs
-            symbol = "$"
-            df["display_salary"] = df.apply(
-                lambda r: r["salary_mid"] if r.get("currency") != "INR"
-                else r["salary_mid"] / USD_TO_INR, axis=1
-            )
-
-    return symbol, df
-
 def format_salary(value, symbol):
     if symbol == "₹":
         if value >= 10000000:
@@ -100,13 +45,32 @@ def apply_filter(df):
         df = df[df["country"] == country]
     return df
 
-def render_currency_toggle():
-    country = st.session_state.get("country_filter", "All")
-    if country == "United States":
-        st.toggle("Show in ₹ (INR)", key="show_inr")
-    elif country == "India":
-        st.toggle("Show in $ (USD)", key="show_usd")
-        if st.session_state.get("show_usd"):
-            st.session_state["show_inr"] = False
+def get_display_salary(df):
+    show_inr       = st.session_state.get("show_inr", False)
+    country_filter = st.session_state.get("country_filter", "All")
+    df = df.copy()
+
+    def convert(row):
+        is_india = str(row.get("country", "")).strip() == "India"
+        salary   = row["salary_mid"]
+        if is_india:
+            if show_inr or country_filter == "India":
+                return salary
+            else:
+                return salary / USD_TO_INR
+        else:
+            if show_inr:
+                return salary * USD_TO_INR
+            else:
+                return salary
+
+    df["display_salary"] = df.apply(convert, axis=1)
+
+    if country_filter == "India" and not st.session_state.get("show_usd", False):
+        symbol = "₹"
+    elif show_inr:
+        symbol = "₹"
     else:
-        st.toggle("Convert all to ₹ (INR)", key="show_inr")
+        symbol = "$"
+
+    return symbol, df
