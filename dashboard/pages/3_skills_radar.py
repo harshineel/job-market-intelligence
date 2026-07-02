@@ -5,6 +5,10 @@ import joblib
 import numpy as np
 import scipy.sparse as sp
 import os, sys
+try:
+    from dashboard.data_loader import load_jobs, load_skill_demand
+except:
+    from data_loader import load_jobs, load_skill_demand
 
 # Path fix for Streamlit Cloud
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -20,7 +24,7 @@ def load_model():
     return model, encoders
 
 def load_data():
-    return load_jobs()
+    return load_jobs(),load_skill_demand()
 
 def apply_filter(df):
     country = st.session_state.get("country_filter", "All")
